@@ -166,6 +166,7 @@ class ViewController: UIViewController {
     password.layer.position.x = view.bounds.size.width/2
     
     let groupAnimation = CAAnimationGroup()
+    groupAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
     groupAnimation.beginTime = CACurrentMediaTime() + 0.5
     groupAnimation.duration = 0.5
     groupAnimation.fillMode = kCAFillModeBackwards

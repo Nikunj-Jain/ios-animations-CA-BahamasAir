@@ -118,9 +118,6 @@ class ViewController: UIViewController {
   
   override func viewWillAppear(animated: Bool) {
     super.viewWillAppear(animated)
-
-    username.layer.position.x -= view.bounds.width
-    password.layer.position.x -= view.bounds.width
     
     let alphaAnim = CABasicAnimation(keyPath: "opacity")
     alphaAnim.fromValue = 0.0
@@ -144,26 +141,31 @@ class ViewController: UIViewController {
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     
+    let formGroup = CAAnimationGroup()
+    formGroup.duration = 0.5
+    formGroup.fillMode = kCAFillModeBackwards
+    
     let flyRight = CABasicAnimation(keyPath: "position.x")
     flyRight.fromValue = -view.bounds.size.width/2
     flyRight.toValue = view.bounds.size.width/2
-    flyRight.duration = 0.5
-    flyRight.fillMode = kCAFillModeBoth
-    flyRight.delegate = self
-    flyRight.setValue("form", forKey: "name")
-    flyRight.setValue(heading.layer, forKey: "layer")
     
-    heading.layer.addAnimation(flyRight, forKey: nil)
-
-    flyRight.beginTime = CACurrentMediaTime() + 0.3
-    flyRight.setValue(username.layer, forKey: "layer")
-    username.layer.addAnimation(flyRight, forKey: nil)
-    username.layer.position.x = view.bounds.size.width/2
-
-    flyRight.beginTime = CACurrentMediaTime() + 0.4
-    flyRight.setValue(password.layer, forKey: "layer")
-    password.layer.addAnimation(flyRight, forKey: nil)
-    password.layer.position.x = view.bounds.size.width/2
+    let fadeFieldIn = CABasicAnimation(keyPath: "opacity")
+    fadeFieldIn.fromValue = 0.25
+    fadeFieldIn.toValue = 1.0
+    
+    formGroup.animations = [flyRight, fadeFieldIn]
+    heading.layer.addAnimation(formGroup, forKey: nil)
+    
+    formGroup.delegate = self
+    formGroup.setValue("form", forKey: "name")
+    
+    formGroup.setValue(username.layer, forKey: "layer")
+    formGroup.beginTime = CACurrentMediaTime() + 0.3
+    username.layer.addAnimation(formGroup, forKey: nil)
+    
+    formGroup.setValue(password.layer, forKey: "layer")
+    formGroup.beginTime = CACurrentMediaTime() + 0.4
+    password.layer.addAnimation(formGroup, forKey: nil)
     
     let groupAnimation = CAAnimationGroup()
     groupAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn)
@@ -213,7 +215,7 @@ class ViewController: UIViewController {
                 let pulse = CABasicAnimation(keyPath: "transform.scale")
                 pulse.fromValue = 1.25
                 pulse.toValue = 1.0
-                pulse.duration = 2.5
+                pulse.duration = 0.35
                 layer?.addAnimation(pulse, forKey: nil)
             } else if name == "cloud" {
                 let layer = anim.valueForKey("layer") as! CALayer

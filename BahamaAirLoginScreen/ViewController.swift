@@ -32,11 +32,14 @@ func delay(seconds seconds: Double, completion:()->()) {
 }
 
 func tintBackgroundColor(layer: CALayer, toColor: UIColor) {
-    let bgcolorAnim = CABasicAnimation(keyPath: "backgroundColor")
+    let bgcolorAnim = CASpringAnimation(keyPath: "backgroundColor")
     bgcolorAnim.fromValue = layer.backgroundColor
     bgcolorAnim.toValue = toColor.CGColor
-    bgcolorAnim.duration = 1.0
-    bgcolorAnim.fillMode = kCAFillModeBackwards
+    bgcolorAnim.damping = 100
+    bgcolorAnim.stiffness = 1500
+    bgcolorAnim.initialVelocity = 20
+    bgcolorAnim.mass = 10.0
+    bgcolorAnim.duration = bgcolorAnim.settlingDuration
     
     layer.addAnimation(bgcolorAnim, forKey: nil)
     layer.backgroundColor = toColor.CGColor
@@ -44,11 +47,14 @@ func tintBackgroundColor(layer: CALayer, toColor: UIColor) {
 }
 
 func roundCorners(layer: CALayer, toRadius: CGFloat) {
-    let roundAnim = CABasicAnimation(keyPath: "cornerRadius")
+    let roundAnim = CASpringAnimation(keyPath: "cornerRadius")
     roundAnim.fromValue = layer.cornerRadius
     roundAnim.toValue = toRadius
-    roundAnim.duration = 0.33
-    roundAnim.fillMode = kCAFillModeBackwards
+    roundAnim.damping = 100.0
+    roundAnim.stiffness = 1500.0
+    roundAnim.initialVelocity = 10.0
+    roundAnim.mass = 5.0
+    roundAnim.duration = roundAnim.settlingDuration
     
     layer.addAnimation(roundAnim, forKey: nil)
     layer.cornerRadius = toRadius
@@ -212,10 +218,11 @@ class ViewController: UIViewController {
                 let layer = anim.valueForKey("layer") as? CALayer
                 anim.setValue(nil, forKey: "layer")
                 
-                let pulse = CABasicAnimation(keyPath: "transform.scale")
+                let pulse = CASpringAnimation(keyPath: "transform.scale")
+                pulse.damping = 7.5
                 pulse.fromValue = 1.25
                 pulse.toValue = 1.0
-                pulse.duration = 0.35
+                pulse.duration = pulse.settlingDuration
                 layer?.addAnimation(pulse, forKey: nil)
             } else if name == "cloud" {
                 let layer = anim.valueForKey("layer") as! CALayer
@@ -319,6 +326,31 @@ class ViewController: UIViewController {
 extension ViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(textField: UITextField) {
         info.layer.removeAnimationForKey("infoappear")
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        if textField.text?.characters.count < 5 {
+            let jump = CASpringAnimation(keyPath: "position.y")
+            jump.mass = 10.0
+            jump.initialVelocity = 100.0
+            jump.stiffness = 1500
+            jump.damping = 50.0
+            jump.fromValue = textField.layer.position.y + 1
+            jump.toValue = textField.layer.position.y
+            jump.duration = jump.settlingDuration
+            textField.layer.addAnimation(jump, forKey: nil)
+            
+            textField.layer.borderWidth = 3.0
+            textField.layer.borderColor = UIColor.clearColor().CGColor
+            
+            let flash = CASpringAnimation(keyPath: "borderColor")
+            flash.damping = 7.0
+            flash.stiffness = 200.0
+            flash.fromValue = UIColor(red: 0.96, green: 0.27, blue: 0.0, alpha: 1.0).CGColor
+            flash.toValue = UIColor.clearColor().CGColor
+            flash.duration = flash.settlingDuration
+            textField.layer.addAnimation(flash, forKey: nil)
+        }
     }
 }
 

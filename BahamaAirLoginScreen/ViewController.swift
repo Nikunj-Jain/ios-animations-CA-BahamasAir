@@ -122,9 +122,6 @@ class ViewController: UIViewController {
     username.layer.position.x -= view.bounds.width
     password.layer.position.x -= view.bounds.width
     
-    loginButton.center.y += 30.0
-    loginButton.alpha = 0.0
-    
     let alphaAnim = CABasicAnimation(keyPath: "opacity")
     alphaAnim.fromValue = 0.0
     alphaAnim.toValue = 1.0
@@ -168,10 +165,25 @@ class ViewController: UIViewController {
     password.layer.addAnimation(flyRight, forKey: nil)
     password.layer.position.x = view.bounds.size.width/2
     
-    UIView.animateWithDuration(0.5, delay: 0.5, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.0, options: [], animations: {
-        self.loginButton.center.y -= 30.0
-        self.loginButton.alpha = 1.0
-    }, completion: nil)
+    let groupAnimation = CAAnimationGroup()
+    groupAnimation.beginTime = CACurrentMediaTime() + 0.5
+    groupAnimation.duration = 0.5
+    groupAnimation.fillMode = kCAFillModeBackwards
+    
+    let scaleDown = CABasicAnimation(keyPath: "transform.scale")
+    scaleDown.fromValue = 3.5
+    scaleDown.toValue = 1.0
+    
+    let rotate = CABasicAnimation(keyPath: "transform.rotation")
+    rotate.fromValue = CGFloat(M_PI_4)
+    rotate.toValue = 0.0
+    
+    let fade = CABasicAnimation(keyPath: "opacity")
+    fade.fromValue = 0.0
+    fade.toValue = 1.0
+    
+    groupAnimation.animations = [scaleDown, rotate, fade]
+    loginButton.layer.addAnimation(groupAnimation, forKey: nil)
 
     animateCloud(cloud1.layer)
     animateCloud(cloud2.layer)
